@@ -9,38 +9,37 @@ router.use((req ,res , next)=>{
 
 })
 
+
+// listing users
 router.get('/',(req , res, next)=>{
-    // process request  ===> get data from data source
-    //return response
-    // send resopnse to client side
+
     UserModel.find({},(err , users)=>{
           if(!err){
               return res.json(users)
           }
           next(err)
     })
-    // res.send('listing users')
 })
-router.get('/:id',(req ,res)=>{
+
+// listing user with his id 
+router.get('/:id',(req ,res , next)=>{
+    
     // get value of id
     const routeParams = req.params
     const { id } = routeParams
-    UserModel.find({},(err , users)=>{
+    UserModel.findById(id,(err , user)=>{
         if(!err){
-            return res.json(users)
+            return res.json(user)
         }
         next(err)
+     })
   })
-    // const { id , postid , x } = routeParams
 
-    // process request ===> fetch instance with recieved id
-    // return response
-    // send resopnse to client side
-    res.send(`listing user with id = ${id}`)
-    
-})
+
+
+// Create User
 router.post('/',(req ,res , next)=>{
-    debugger;
+   
     // get request body ===> req.body
     const {firstName , lastName, password , dob , gender , email, phoneNo} = req.body
     
@@ -57,7 +56,7 @@ router.post('/',(req ,res , next)=>{
 
     const fullName = userInstance.getFullName()
     console.log(fullName)
-    
+
     // save user instance in db
     userInstance.save((err , user)=>{
         if(!err){
@@ -65,15 +64,37 @@ router.post('/',(req ,res , next)=>{
         }
         next(err)
     })
-    // res.send(`creating instance`)
+ 
 })
-router.patch('/:id',(req ,res)=>{
-    res.send(`updating user with id = ${req.params.id}`)
-    
+
+// updating user with id
+router.patch('/:id',(req ,res, next)=>{
+
+    // get value of id
+    const routeParams = req.params
+    const { id } = routeParams
+    UserModel.findByIdAndUpdate(id, {$set: req.body}, (err, user) => {
+        if (!err) {
+            return res.send('User udpated.')
+        }
+        next(err)        
+    })
+
 })
-router.delete('/:id',(req ,res)=>{
-    res.send(`deleting user with id = ${req.params.id}`)
-    
+
+
+// deleting user with id
+router.delete('/:id',(req ,res,next)=>{
+
+    // get value of id
+    const routeParams = req.params
+    const { id } = routeParams
+    UserModel.findByIdAndRemove(id,(err)=>{
+           if(!err){
+               return res.send('Deleted Successfully')
+           }
+           next(err)
+        }) 
 })
 
 module.exports = router
