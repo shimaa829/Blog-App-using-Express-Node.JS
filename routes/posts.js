@@ -1,4 +1,5 @@
 const express = require('express')
+const PostModel = require('../models/posts')
 const router = express.Router()
 
 
@@ -8,34 +9,82 @@ router.use((req ,res , next)=>{
 
 })
 
-router.get('/',(req , res)=>{
-    // process request  ===> get data from data source
-    //return response
-    // send resopnse to client side
-    res.send('listing posts')
-})
-router.get('/:id',(req ,res)=>{
-    // get value of id
-    const routeParams = req.params
-    const { id } = routeParams
-    // const { id , postid , x } = routeParams
 
-    // process request ===> fetch instance with recieved id
-    // return response
-    // send resopnse to client side
-    res.send(`listing post with id = ${id}`)
-    
+// listing posts
+router.get('/',(req , res, next)=>{
+
+    PostModel.find({},(err , posts)=>{
+          if(!err){
+              return res.json(posts)
+          }
+          next(err)
+    })
 })
-router.post('/',(req ,res)=>{
-    res.send(`creating instance`)
-})
-router.patch('/:id',(req ,res)=>{
-    res.send(`updating post with id = ${req.params.id}`)
+
+// listing post with his id 
+router.get('/:id',(req ,res , next)=>{
+
+    // get value of id
+    PostModel.findById(req.params.id,(err , post)=>{
+        if(!err){
+            return res.json(post)
+        }
+        next(err)
+     })
+  })
+
+
+
+// Create Post
+router.post('/',(req ,res , next)=>{
+   
+    // get request body ===> req.body
+    const {title , body , author} = req.body
     
+    // construct post instance from PostModel
+    const postInstance = new PostModel({
+        title, 
+        body, 
+        author
+    })
+
+    const postDetails = postInstance.getPostDetails()
+    console.log(postDetails)
+
+    // save post instance in db
+    postInstance.save((err , post)=>{
+        if(!err){
+            return res.json(post)
+        }
+        next(err)
+    })
+ 
 })
-router.delete('/:id',(req ,res)=>{
-    res.send(`deleting post with id = ${req.params.id}`)
-    
+
+// updating post with id
+router.patch('/:id',(req ,res, next)=>{
+
+    // get value of id
+    PostModel.findByIdAndUpdate(req.params.id, {$set: req.body}, (err, post) => {
+        if (!err) {
+            return res.send('Post is Edited successfully')
+        }
+        next(err)        
+    })
+
+})
+
+
+// deleting post with id
+router.delete('/:id',(req ,res,next)=>{
+
+    // get value of id
+    PostModel.findByIdAndRemove(req.params.id,(err)=>{
+           if(!err){
+               return res.send('Deleted Successfully')
+           }
+           next(err)
+        }) 
 })
 
 module.exports = router
