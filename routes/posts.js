@@ -13,7 +13,7 @@ router.use((req ,res , next)=>{
 // listing posts
 router.get('/',(req , res, next)=>{
 
-    PostModel.find({},(err , posts)=>{
+    PostModel.find({}).populate('author').exec((err , posts)=>{
           if(!err){
               return res.json(posts)
           }

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
 
 const userSchema = new mongoose.Schema({
     firstName: {type: String, required: true, maxlength:20, minlength: 3},
@@ -22,6 +23,16 @@ userSchema.methods.getFullName = function getFullName(){
 //       this.find({gender: gender}, cb)
     
 // }
+
+// convert plaintext password to hashed password
+userSchema.pre('save',function(doc,next){
+    if(doc.isNew){
+        bcrypt.hash(doc.password,10,(err, hashedPassword)=>{
+            doc.password = hashedPassword
+            next()
+        })
+    }
+})
 
 const userModel = mongoose.model('User', userSchema)
 

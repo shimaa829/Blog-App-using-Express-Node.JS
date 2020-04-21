@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 const postSchema = new mongoose.Schema({
     title: {type: String, required: true, maxlength:20, minlength: 3},
     body: {type: String,},
-    author: {type: mongoose.Schema.Types.ObjectId,required: true},
+    author: {type: mongoose.Schema.Types.ObjectId,ref: 'User'},
 })
 
 postSchema.methods.getPostDetails = function getPostDetails() {
