@@ -11,32 +11,32 @@ router.use((req ,res , next)=>{
 
 
 // listing posts
-router.get('/',(req , res, next)=>{
+router.get('/',async (req , res, next)=>{
+    try{
+            const posts = await PostModel.find({}).populate('author')
+            return res.json(posts)
 
-    PostModel.find({}).populate('author').exec((err , posts)=>{
-          if(!err){
-              return res.json(posts)
-          }
-          next(err)
-    })
+        }catch(err){
+            next(err)
+        }
 })
 
 // listing post with his id 
-router.get('/:id',(req ,res , next)=>{
-
-    // get value of id
-    PostModel.findById(req.params.id,(err , post)=>{
-        if(!err){
+router.get('/:id',async (req ,res , next)=>{
+    try{
+            // get value of id
+            const post = await PostModel.findById(req.params.id)
             return res.json(post)
+
+        }catch(err){
+           next(err)
         }
-        next(err)
-     })
   })
 
 
 
 // Create Post
-router.post('/',(req ,res , next)=>{
+router.post('/',async (req ,res , next)=>{
    
     // get request body ===> req.body
     const {title , body , author} = req.body
@@ -48,43 +48,42 @@ router.post('/',(req ,res , next)=>{
         author
     })
 
-    const postDetails = postInstance.getPostDetails()
-    console.log(postDetails)
-
-    // save post instance in db
-    postInstance.save((err , post)=>{
-        if(!err){
+    try{
+            // save post instance in db
+            const post = await postInstance.save()
             return res.json(post)
+
+        }catch(err){
+              next(err)
         }
-        next(err)
-    })
+  
  
 })
 
 // updating post with id
-router.patch('/:id',(req ,res, next)=>{
-
-    // get value of id
-    PostModel.findByIdAndUpdate(req.params.id, {$set: req.body}, (err, post) => {
-        if (!err) {
+router.patch('/:id',async (req ,res, next)=>{
+   try{
+          // get value of id
+            await PostModel.findByIdAndUpdate(req.params.id, {$set: req.body})
             return res.send('Post is Edited successfully')
-        }
-        next(err)        
-    })
+
+      }catch(err){
+           next(err)        
+      }
 
 })
 
 
 // deleting post with id
-router.delete('/:id',(req ,res,next)=>{
+router.delete('/:id',async (req ,res,next)=>{
+   try{
+         // get value of id
+          await PostModel.findByIdAndRemove(req.params.id)
+          return res.send('Deleted Successfully')
 
-    // get value of id
-    PostModel.findByIdAndRemove(req.params.id,(err)=>{
-           if(!err){
-               return res.send('Deleted Successfully')
-           }
+      }catch(err){
            next(err)
-        }) 
+      }
 })
 
 module.exports = router

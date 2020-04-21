@@ -11,90 +11,83 @@ router.use((req ,res , next)=>{
 
 
 // listing users
-router.get('/',(req , res, next)=>{
+router.get('/', async (req , res, next)=>{
+   try{
+        const users = await UserModel.find({})
+        return res.json(users)
 
-    UserModel.find({},(err , users)=>{
-          if(!err){
-              return res.json(users)
-          }
+      }catch(err){
           next(err)
-    })
+      }
 })
 
 // listing user with his id 
-router.get('/:id',(req ,res , next)=>{
-    
-    // get value of id
-    const routeParams = req.params
-    const { id } = routeParams
-    UserModel.findById(id,(err , user)=>{
-        if(!err){
-            return res.json(user)
+router.get('/:id', async (req ,res , next)=>{
+    try{
+          // get value of id
+          const user = await UserModel.findById(req.params.id)
+          return res.json(user)
+
+        }catch(err){
+           next(err)
         }
-        next(err)
-     })
   })
 
 
 
 // Create User
-router.post('/',(req ,res , next)=>{
+router.post('/',async (req ,res , next)=>{
    
     // get request body ===> req.body
     const {firstName , lastName, password , dob , gender , email, phoneNo} = req.body
-    
-    // construct user instance from UserModel
-    const userInstance = new UserModel({
-        firstName,
-        lastName,
-        password,
-        dob,
-        gender,
-        email, 
-        phoneNo
-    })
+    try{
+            // construct user instance from UserModel
+            const userInstance = new UserModel({
+                firstName,
+                lastName,
+                password,
+                dob,
+                gender,
+                email, 
+                phoneNo
+            })
 
-    const fullName = userInstance.getFullName()
-    console.log(fullName)
+            const fullName = userInstance.getFullName()
+            console.log(fullName)
 
-    // save user instance in db
-    userInstance.save((err , user)=>{
-        if(!err){
+            // save user instance in db
+            const user = await userInstance.save()
             return res.json(user)
-        }
+
+        }catch(err){
         next(err)
-    })
+        }
  
 })
 
 // updating user with id
-router.patch('/:id',(req ,res, next)=>{
+router.patch('/:id',async (req ,res, next)=>{
+try{
+        // get value of id
+        await UserModel.findByIdAndUpdate(req.params.id, {$set: req.body})
+        return res.send('User udpated.')
 
-    // get value of id
-    const routeParams = req.params
-    const { id } = routeParams
-    UserModel.findByIdAndUpdate(id, {$set: req.body}, (err, user) => {
-        if (!err) {
-            return res.send('User udpated.')
-        }
+    }catch(err){
         next(err)        
-    })
+    }
 
 })
 
 
 // deleting user with id
-router.delete('/:id',(req ,res,next)=>{
+router.delete('/:id',async (req ,res,next)=>{
+    try{
+           await UserModel.findByIdAndRemove(req.params.id)
+            return res.send('Deleted Successfully')
 
-    // get value of id
-    const routeParams = req.params
-    const { id } = routeParams
-    UserModel.findByIdAndRemove(id,(err)=>{
-           if(!err){
-               return res.send('Deleted Successfully')
-           }
+        }catch(err){
            next(err)
-        }) 
+        }
 })
 
 module.exports = router

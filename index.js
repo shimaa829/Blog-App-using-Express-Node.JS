@@ -5,7 +5,7 @@ const postRouter = require ('./routes/posts')
 const logRequestBody = require ('./middlewares/log')
 const log = require ('./middlewares/logRequestBody')
 
-const PORT  = process.env.PORT  || 6002
+const PORT  = process.env.PORT  || 6004
 mongoose.connect('mongodb://localhost:27017/blog-app',
                  { 
                    useNewUrlParser: true ,
