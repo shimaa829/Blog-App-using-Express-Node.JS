@@ -1,5 +1,6 @@
 const express = require('express')
 const UserModel = require('../models/users')
+const PostModel = require('../models/posts')
 const router = express.Router()
 
 
@@ -39,8 +40,8 @@ router.get('/:id', async (req ,res , next)=>{
 router.post('/',async (req ,res , next)=>{
    
     // get request body ===> req.body
-    const {firstName , lastName, password , dob , gender , email, phoneNo} = req.body
-    try{
+    const {firstName , lastName, password , dob ,  gender , email, phoneNo} = req.body
+
             // construct user instance from UserModel
             const userInstance = new UserModel({
                 firstName,
@@ -51,16 +52,13 @@ router.post('/',async (req ,res , next)=>{
                 email, 
                 phoneNo
             })
-
-            const fullName = userInstance.getFullName()
-            console.log(fullName)
-
+            try{
             // save user instance in db
             const user = await userInstance.save()
             return res.json(user)
 
         }catch(err){
-        next(err)
+           next(err)
         }
  
 })
@@ -87,6 +85,15 @@ router.delete('/:id',async (req ,res,next)=>{
 
         }catch(err){
            next(err)
+        }
+})
+
+router.get('/:id/posts', async (req ,res, next) =>{
+      try{
+            const posts = await PostModel.find({'author': req.params.id})
+            return res.json(posts)
+        }catch(err){
+            next(err)
         }
 })
 
